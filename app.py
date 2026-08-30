@@ -1,97 +1,156 @@
 import streamlit as st
 import pandas as pd
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 
-# Page settings
+
+# -------------------------------
+# PAGE SETTINGS
+# -------------------------------
+
 st.set_page_config(
-    page_title="Student Performance Prediction",
-    page_icon=" ",
+    page_title="Student Stress Level Prediction",
+    page_icon="🎓",
     layout="centered"
 )
 
-st.title(" Student Performance Prediction")
+st.title("🎓 Student Stress Level Prediction")
 st.write("Enter the student details to predict the Stress Level.")
 
-# Load dataset
+
+# -------------------------------
+# LOAD DATASET
+# -------------------------------
+
 try:
+
     df = pd.read_csv("students performance.csv")
 
-    # Remove unwanted spaces from column names
+    # Remove spaces from column names
     df.columns = df.columns.str.strip()
+
+    # Remove extra spaces from text values
+    for column in df.select_dtypes(include=["object"]).columns:
+        df[column] = df[column].str.strip()
 
     # Target column
     target = "Stress_Level"
 
     # Check target column
     if target not in df.columns:
-        st.error("Stress_Level column not found in the dataset.")
-        st.write("Available columns:", list(df.columns))
+
+        st.error("Stress_Level column not found in dataset.")
+
+        st.write(
+            "Available columns:",
+            list(df.columns)
+        )
+
         st.stop()
 
-    # Separate input and output
+
+    # -------------------------------
+    # INPUT AND OUTPUT
+    # -------------------------------
+
     X = df.drop(columns=[target])
     y = df[target]
 
-    # Identify categorical columns
+
+    # -------------------------------
+    # IDENTIFY COLUMNS
+    # -------------------------------
+
     categorical_columns = X.select_dtypes(
         include=["object"]
     ).columns.tolist()
 
-    # Identify numerical columns
     numerical_columns = X.select_dtypes(
         exclude=["object"]
     ).columns.tolist()
 
-    # Preprocessing
+
+    # -------------------------------
+    # PREPROCESSING
+    # -------------------------------
+
     preprocessor = ColumnTransformer(
         transformers=[
             (
-                "cat",
+                "categorical",
                 OneHotEncoder(handle_unknown="ignore"),
                 categorical_columns
             ),
             (
-                "num",
+                "numerical",
                 "passthrough",
                 numerical_columns
             )
         ]
     )
 
-    # Machine Learning model
+
+    # -------------------------------
+    # MACHINE LEARNING MODEL
+    # -------------------------------
+
     model = Pipeline(
         steps=[
-            ("preprocessor", preprocessor),
-            ("regressor", LinearRegression())
+            (
+                "preprocessor",
+                preprocessor
+            ),
+            (
+                "classifier",
+                LogisticRegression(
+                    max_iter=1000
+                )
+            )
         ]
     )
 
-    # Split dataset
+
+    # -------------------------------
+    # TRAIN MODEL
+    # -------------------------------
+
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
         test_size=0.2,
-        random_state=42
+        random_state=42,
+        stratify=y
     )
 
-    # Train model
-    model.fit(X_train, y_train)
+    model.fit(
+        X_train,
+        y_train
+    )
 
-    # Student details
-    st.subheader("Enter Student Details")
+
+    # -------------------------------
+    # STUDENT INPUT
+    # -------------------------------
+
+    st.subheader("📝 Enter Student Details")
 
     user_input = {}
 
-    # Create input boxes automatically
+
     for column in X.columns:
 
         if column in categorical_columns:
 
-            options = df[column].dropna().unique().tolist()
+            options = (
+                df[column]
+                .dropna()
+                .unique()
+                .tolist()
+            )
 
             user_input[column] = st.selectbox(
                 column,
@@ -100,9 +159,17 @@ try:
 
         else:
 
-            min_value = float(df[column].min())
-            max_value = float(df[column].max())
-            mean_value = float(df[column].mean())
+            min_value = float(
+                df[column].min()
+            )
+
+            max_value = float(
+                df[column].max()
+            )
+
+            mean_value = float(
+                df[column].mean()
+            )
 
             user_input[column] = st.number_input(
                 column,
@@ -111,43 +178,78 @@ try:
                 value=mean_value
             )
 
-    # Prediction button
-    if st.button(" Predict Stress Level"):
 
-        # Convert user input into DataFrame
-        input_df = pd.DataFrame([user_input])
+    # -------------------------------
+    # PREDICTION BUTTON
+    # -------------------------------
 
-        # Make prediction
-        prediction = model.predict(input_df)[0]
+    if st.button("🔮 Predict Stress Level"):
+
+        input_df = pd.DataFrame(
+            [user_input]
+        )
+
+        prediction = model.predict(
+            input_df
+        )[0]
 
         st.subheader("📊 Prediction Result")
 
-        st.success(
-            f"Predicted Stress Level: {prediction:.2f}"
-        )
+        if prediction == "High":
 
-        # Result message
-        if prediction >= 80:
-            st.balloons()
-            st.write(" Excellent Performance!")
+            st.error(
+                "🔴 Stress Level: HIGH"
+            )
 
-        elif prediction >= 60:
-            st.write(" Good Performance!")
+            st.write(
+                "The student may be experiencing a high level of stress."
+            )
 
-        elif prediction >= 40:
-            st.write(" Average Performance. Keep improving!")
+        elif prediction == "Medium":
+
+            st.warning(
+                "🟠 Stress Level: MEDIUM"
+            )
+
+            st.write(
+                "The student has a moderate level of stress."
+            )
+
+        elif prediction == "Low":
+
+            st.success(
+                "🟢 Stress Level: LOW"
+            )
+
+            st.write(
+                "The student has a low level of stress."
+            )
 
         else:
-            st.write(" Need more improvement. Keep studying!")
+
+            st.info(
+                f"Predicted Stress Level: {prediction}"
+            )
+
+
+# -------------------------------
+# ERROR HANDLING
+# -------------------------------
 
 except FileNotFoundError:
 
     st.error(
-        " Dataset not found. "
-        "Make sure 'students performance.csv' "
-        "is uploaded in the repository."
+        "❌ Dataset not found."
     )
+
+    st.write(
+        "Make sure 'students performance.csv' "
+        "is uploaded in the same folder as app.py."
+    )
+
 
 except Exception as e:
 
-    st.error(f" Something went wrong: {e}")
+    st.error(
+        f"❌ Something went wrong: {e}"
+    )

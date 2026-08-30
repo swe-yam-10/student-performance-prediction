@@ -83,10 +83,10 @@ try:
 
     user_input = {}
 
-    # Create input boxes automatically based on dataset columns
-     for column in X.columns:
+    # Create input boxes automatically based on dataset column
+    for column in X.columns:
 
-    if not pd.api.types.is_numeric_dtype(df[column]):
+           if not pd.api.types.is_numeric_dtype(df[column]):
         options = df[column].dropna().unique().tolist()
 
         user_input[column] = st.selectbox(

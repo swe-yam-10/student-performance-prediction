@@ -104,7 +104,7 @@ for column in X.columns:
             max_value=max_value,
             value=mean_value
         )
-        )
+        
 
     else:
         min_value = float(df[column].min())

@@ -12,28 +12,36 @@ st.set_page_config(
     page_icon=" ",
     layout="centered"
 )
+
 st.title(" Student Performance Prediction")
 st.write("Enter the student details to predict the Stress Level.")
+
 # Load dataset
-df =
-pd.read_csv("students performance.csv
- ")
+try:
+    df = pd.read_csv("students performance.csv")
+
     # Remove unwanted spaces from column names
     df.columns = df.columns.str.strip()
+
     # Target column
     target = "Stress_Level"
- if target not in df.columns:
-        st.error("Performance Index column not found in the dataset.")
+
+    # Check target column
+    if target not in df.columns:
+        st.error("Stress_Level column not found in the dataset.")
         st.write("Available columns:", list(df.columns))
         st.stop()
+
     # Separate input and output
     X = df.drop(columns=[target])
     y = df[target]
-    # Identify categorical and numerical columns
+
+    # Identify categorical columns
     categorical_columns = X.select_dtypes(
         include=["object"]
     ).columns.tolist()
 
+    # Identify numerical columns
     numerical_columns = X.select_dtypes(
         exclude=["object"]
     ).columns.tolist()
@@ -72,34 +80,56 @@ pd.read_csv("students performance.csv
 
     # Train model
     model.fit(X_train, y_train)
-    st.subheader(" Enter Student Details")
+
+    # Student details
+    st.subheader("Enter Student Details")
+
     user_input = {}
-    # Create input boxes automatically based on dataset column
-for column in X.columns:
 
-    if column in categorical_columns:
-        options = df[column].dropna().unique().tolist()
+    # Create input boxes automatically
+    for column in X.columns:
 
-        user_input[column] = st.selectbox(
-            column,
-            options
+        if column in categorical_columns:
+
+            options = df[column].dropna().unique().tolist()
+
+            user_input[column] = st.selectbox(
+                column,
+                options
+            )
+
+        else:
+
+            min_value = float(df[column].min())
+            max_value = float(df[column].max())
+            mean_value = float(df[column].mean())
+
+            user_input[column] = st.number_input(
+                column,
+                min_value=min_value,
+                max_value=max_value,
+                value=mean_value
+            )
+
+    # Prediction button
+    if st.button(" Predict Stress Level"):
+
+        # Convert user input into DataFrame
+        input_df = pd.DataFrame([user_input])
+
+        # Make prediction
+        prediction = model.predict(input_df)[0]
+
+        st.subheader("📊 Prediction Result")
+
+        st.success(
+            f"Predicted Stress Level: {prediction:.2f}"
         )
 
-    else:
-        min_value = float(df[column].min())
-        max_value = float(df[column].max())
-        mean_value = float(df[column].mean())
-
-        user_input[column] = st.number_input(
-            column,
-            min_value=min_value,
-            max_value=max_value,
-            value=mean_value
-        )
-
+        # Result message
         if prediction >= 80:
             st.balloons()
-            st.write("Excellent Performance!")
+            st.write(" Excellent Performance!")
 
         elif prediction >= 60:
             st.write(" Good Performance!")
@@ -111,10 +141,13 @@ for column in X.columns:
             st.write(" Need more improvement. Keep studying!")
 
 except FileNotFoundError:
+
     st.error(
-        " Dataset not found. Make sure "
-        "'students performance.csv' is uploaded in the repository."
+        " Dataset not found. "
+        "Make sure 'students performance.csv' "
+        "is uploaded in the repository."
     )
 
 except Exception as e:
-    st.error(f"Something went wrong: {e}")
+
+    st.error(f" Something went wrong: {e}")

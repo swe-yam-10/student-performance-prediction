@@ -84,10 +84,12 @@ try:
     user_input = {}
 
     # Create input boxes automatically based on dataset column
+# Create input boxes automatically based on dataset column
 for column in X.columns:
 
     if column in categorical_columns:
         options = df[column].dropna().unique().tolist()
+
         user_input[column] = st.selectbox(
             column,
             options
@@ -103,27 +105,6 @@ for column in X.columns:
             min_value=min_value,
             max_value=max_value,
             value=mean_value
-        )
-        
-user_input[column] = st.number_input(
-            column,
-            min_value=min_value,
-            max_value=max_value,
-            value=mean_value
-        )
-
-# Prediction button
-if st.button("Predict Performance"):
-
-    # Prediction button
-    if st.button(" Predict Performance"):
-
-        input_df = pd.DataFrame([user_input])
-
-        prediction = model.predict(input_df)[0]
-
-        st.success(
-            f" Predicted Performance Index: {prediction:.2f}"
         )
 
         if prediction >= 80:

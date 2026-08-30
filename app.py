@@ -105,26 +105,15 @@ for column in X.columns:
             value=mean_value
         )
         
-
-    else:
-        min_value = float(df[column].min())
-        max_value = float(df[column].max())
-        mean_value = float(df[column].mean())
-
-        user_input[column] = st.number_input(
+user_input[column] = st.number_input(
             column,
             min_value=min_value,
             max_value=max_value,
             value=mean_value
         )
-        
 
-        user_input[column] = st.number_input(
-            column,
-            min_value=min_value,
-            max_value=max_value,
-            value=mean_value
-        )
+# Prediction button
+if st.button("Predict Performance"):
 
     # Prediction button
     if st.button(" Predict Performance"):

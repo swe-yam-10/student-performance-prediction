@@ -84,7 +84,7 @@ try:
     user_input = {}
 
     # Create input boxes automatically based on dataset columns
-    for column in X.columns:
+     for column in X.columns:
 
     if not pd.api.types.is_numeric_dtype(df[column]):
         options = df[column].dropna().unique().tolist()
@@ -104,6 +104,7 @@ try:
             min_value=min_value,
             max_value=max_value,
             value=mean_value
+        )
         )
 
         user_input[column] = st.number_input(

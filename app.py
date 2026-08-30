@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 st.title(" Student Performance Prediction")
-st.write("Enter the student details to predict the Performance Index.")
+st.write("Enter the student details to predict the Stress Level.")
 
 # Load dataset
 try:
@@ -24,7 +24,7 @@ try:
     df.columns = df.columns.str.strip()
 
     # Target column
-    target = "Performance Index"
+    target = "Stress_Level"
 
     if target not in df.columns:
         st.error("Performance Index column not found in the dataset.")

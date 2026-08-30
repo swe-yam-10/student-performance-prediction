@@ -78,13 +78,9 @@ try:
 
     # Train model
     model.fit(X_train, y_train)
-
     st.subheader(" Enter Student Details")
-
     user_input = {}
-
     # Create input boxes automatically based on dataset column
-# Create input boxes automatically based on dataset column
 for column in X.columns:
 
     if column in categorical_columns:

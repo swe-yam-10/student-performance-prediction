@@ -16,7 +16,8 @@ st.title(" Student Performance Prediction")
 st.write("Enter the student details to predict the Stress Level.")
 # Load dataset
     df =
-    pd.read_csv("students performance.csv")
+    pd.read_csv("students performance.csv
+    ")
     # Remove unwanted spaces from column names
     df.columns = df.columns.str.strip()
     # Target column

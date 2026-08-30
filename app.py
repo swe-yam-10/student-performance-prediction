@@ -12,29 +12,21 @@ st.set_page_config(
     page_icon=" ",
     layout="centered"
 )
-
 st.title(" Student Performance Prediction")
 st.write("Enter the student details to predict the Stress Level.")
-
 # Load dataset
-
     df = pd.read_csv("students performance.csv")
-
     # Remove unwanted spaces from column names
     df.columns = df.columns.str.strip()
-
     # Target column
     target = "Stress_Level"
-
-    if target not in df.columns:
+ if target not in df.columns:
         st.error("Performance Index column not found in the dataset.")
         st.write("Available columns:", list(df.columns))
         st.stop()
-
     # Separate input and output
     X = df.drop(columns=[target])
     y = df[target]
-
     # Identify categorical and numerical columns
     categorical_columns = X.select_dtypes(
         include=["object"]
